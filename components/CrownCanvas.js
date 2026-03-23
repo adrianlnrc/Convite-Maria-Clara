@@ -8,7 +8,6 @@ export default function CrownCanvas() {
   const mouseRef = useRef({ x: 0, y: 0 })
   const deviceOrientRef = useRef({ x: 0, y: 0 })
   const usingOrientRef = useRef(false)
-  const autoRotRef = useRef(0)
 
   useEffect(() => {
     const canvas = mountRef.current
@@ -16,109 +15,217 @@ export default function CrownCanvas() {
 
     const W = canvas.clientWidth
     const H = canvas.clientHeight
+    if (!W || !H) return
 
     // ── Scene ──────────────────────────────────────────────────
     const scene = new THREE.Scene()
 
     // ── Camera ─────────────────────────────────────────────────
-    const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 100)
-    camera.position.z = 6.5
+    const camera = new THREE.PerspectiveCamera(38, W / H, 0.1, 100)
+    camera.position.z = 8.5
 
-    // ── Renderer (transparent bg) ──────────────────────────────
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      alpha: true,
-      antialias: true,
-    })
+    // ── Renderer ───────────────────────────────────────────────
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     renderer.setSize(W, H, false)
     renderer.setClearColor(0x000000, 0)
+    renderer.outputColorSpace = THREE.SRGBColorSpace
+    renderer.toneMapping = THREE.ACESFilmicToneMapping
+    renderer.toneMappingExposure = 1.4
 
-    // ── Crown geometry ─────────────────────────────────────────
-    //
-    // Crown outline (2D shape, x ∈ [-1,1], y ∈ [-0.4, 1.0])
-    // Scaled up by factor after centering
-    //
-    const crownPts = [
-      // bottom band
-      [-1.0, -0.40],
-      [ 1.0, -0.40],
-      // right outer spike
-      [ 0.78,  0.02],
-      [ 1.00,  0.78],
-      [ 0.58,  0.10],
-      // right circle spike
-      [ 0.32,  0.52],
-      [ 0.17,  0.02],
-      // center spike (tallest)
-      [ 0.00,  1.00],
-      [-0.17,  0.02],
-      // left circle spike
-      [-0.32,  0.52],
-      [-0.58,  0.10],
-      // left outer spike
-      [-1.00,  0.78],
-      [-0.78,  0.02],
-    ]
+    // ── Environment Map (PMREMGenerator + RoomEnvironment) ─────
+    let envTexture = null
+    const setupEnv = async () => {
+      try {
+        const { RoomEnvironment } = await import('three/examples/jsm/environments/RoomEnvironment.js')
+        const pmrem = new THREE.PMREMGenerator(renderer)
+        pmrem.compileEquirectangularShader()
+        envTexture = pmrem.fromScene(new RoomEnvironment()).texture
+        scene.environment = envTexture
+        pmrem.dispose()
+      } catch (e) {
+        // fallback: no env map, lighting only
+      }
+    }
+    setupEnv()
 
-    const scale = 1.6
-    const shape = new THREE.Shape()
-    shape.moveTo(crownPts[0][0] * scale, crownPts[0][1] * scale)
-    crownPts.slice(1).forEach(([x, y]) => shape.lineTo(x * scale, y * scale))
-    shape.closePath()
-
-    const extrudeSettings = { depth: 0.22, bevelEnabled: false }
-    const crownGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings)
-    crownGeo.center()
-
-    const crownMat = new THREE.MeshBasicMaterial({
-      color: 0xf0e6d3,
-      wireframe: true,
+    // ── Materials ──────────────────────────────────────────────
+    const goldMat = new THREE.MeshStandardMaterial({
+      color: 0xD4A843,
+      metalness: 0.92,
+      roughness: 0.16,
+      envMapIntensity: 1.3,
     })
-    const crownMesh = new THREE.Mesh(crownGeo, crownMat)
 
-    // ── Group to hold crown + ornaments ───────────────────────
-    const crownGroup = new THREE.Group()
-    crownGroup.add(crownMesh)
+    const gemMat = new THREE.MeshStandardMaterial({
+      color: 0xE8F4FF,
+      metalness: 0.0,
+      roughness: 0.04,
+      transparent: true,
+      opacity: 0.80,
+      side: THREE.DoubleSide,
+    })
 
-    // ── Diamond ornament (center peak) ────────────────────────
-    const diamondShape = new THREE.Shape()
-    diamondShape.moveTo(0,    0.18 * scale)
-    diamondShape.lineTo(0.08 * scale, 0)
-    diamondShape.lineTo(0,   -0.14 * scale)
-    diamondShape.lineTo(-0.08 * scale, 0)
-    diamondShape.closePath()
+    // ── Lighting ───────────────────────────────────────────────
+    scene.add(new THREE.AmbientLight(0xffeedd, 0.45))
 
-    const diamondGeo = new THREE.ShapeGeometry(diamondShape)
-    const diamondEdges = new THREE.EdgesGeometry(diamondGeo)
-    const lineMat = new THREE.LineBasicMaterial({ color: 0xf0e6d3 })
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.4)
+    keyLight.position.set(3, 5, 4)
+    scene.add(keyLight)
 
-    // Position at center spike tip. The crown geometry was centered, so we
-    // need to offset to match the original tip y = 1.0 * scale = 1.6.
-    // crownGeo bounding box: yMin = -0.4*1.6 = -0.64, yMax = 1.0*1.6 = 1.6
-    // After .center(): yOffset = -(yMax+yMin)/2 = -(1.6-0.64)/2 = -0.48
-    // So tip in centered coords = 1.6 - 0.48 = 1.12  (approx, depth adds 0.11)
-    const diamond = new THREE.LineSegments(diamondEdges, lineMat)
-    diamond.position.set(0, 1.10, 0.12)
-    crownGroup.add(diamond)
+    const rimLight = new THREE.DirectionalLight(0xffe4b0, 1.4)
+    rimLight.position.set(-4, 2, -3)
+    scene.add(rimLight)
 
-    // ── Circle ornaments (right & left circle spike tips) ─────
-    const circleGeo = new THREE.CircleGeometry(0.10, 20)
-    const circleEdges = new THREE.EdgesGeometry(circleGeo)
+    const fillLight = new THREE.PointLight(0xffd700, 1.8, 18)
+    fillLight.position.set(0, 3, 6)
+    scene.add(fillLight)
 
-    // tip-right-circle: (0.32, 0.52)*scale = (0.512, 0.832), centered ≈ (0.512, 0.352)
-    const circR = new THREE.LineSegments(circleEdges, lineMat)
-    circR.position.set(0.50, 0.35, 0.12)
-    crownGroup.add(circR)
+    const gemLight = new THREE.PointLight(0xffffff, 2.4, 8)
+    gemLight.position.set(0.5, 3.5, 4)
+    scene.add(gemLight)
 
-    const circL = new THREE.LineSegments(circleEdges.clone(), lineMat)
-    circL.position.set(-0.50, 0.35, 0.12)
-    crownGroup.add(circL)
+    // ── Tiara Group ────────────────────────────────────────────
+    const tiaraGroup = new THREE.Group()
+    const allGeos = []
 
-    scene.add(crownGroup)
+    const extrude = (shape, depth = 0.18, bevel = 0.035) => {
+      const geo = new THREE.ExtrudeGeometry(shape, {
+        depth,
+        bevelEnabled: true,
+        bevelThickness: bevel,
+        bevelSize: bevel,
+        bevelSegments: 3,
+      })
+      allGeos.push(geo)
+      return geo
+    }
 
-    // ── Ambient lighting (not needed for MeshBasicMaterial but good practice) ─
-    // (MeshBasicMaterial ignores lights)
+    // ── 1. Base band (crescent arc) ────────────────────────────
+    const baseBand = new THREE.Shape()
+    baseBand.moveTo(-3.55, -0.32)
+    baseBand.quadraticCurveTo(0, -0.72, 3.55, -0.32)
+    baseBand.lineTo(3.55, 0.20)
+    baseBand.quadraticCurveTo(0, -0.14, -3.55, 0.20)
+    baseBand.closePath()
+
+    tiaraGroup.add(new THREE.Mesh(extrude(baseBand, 0.22, 0.04), goldMat))
+
+    // ── 2. Helper: rounded arch shape ─────────────────────────
+    const makeRoundedArch = (topH, halfW) => {
+      const s = new THREE.Shape()
+      s.moveTo(-halfW, -0.28)
+      s.lineTo(-halfW, topH * 0.52)
+      s.quadraticCurveTo(-halfW * 0.12, topH + 0.14, 0, topH + 0.14)
+      s.quadraticCurveTo(halfW * 0.12, topH + 0.14, halfW, topH * 0.52)
+      s.lineTo(halfW, -0.28)
+      s.closePath()
+      return s
+    }
+
+    // ── 3. Center arch (gothic pointed, tallest) ───────────────
+    const centerArchShape = new THREE.Shape()
+    centerArchShape.moveTo(-0.44, -0.28)
+    centerArchShape.bezierCurveTo(-0.58, 0.38, -0.12, 1.28, 0, 1.62)
+    centerArchShape.bezierCurveTo(0.12, 1.28, 0.58, 0.38, 0.44, -0.28)
+    centerArchShape.closePath()
+
+    tiaraGroup.add(new THREE.Mesh(extrude(centerArchShape, 0.18, 0.03), goldMat))
+
+    // ── 4. Inner arches ×2 ────────────────────────────────────
+    const innerArchShape = makeRoundedArch(0.92, 0.30)
+    const innerArchGeoL = extrude(innerArchShape, 0.17, 0.03)
+    const innerArchGeoR = extrude(innerArchShape, 0.17, 0.03)
+    allGeos.push(innerArchGeoL, innerArchGeoR)
+
+    const innerL = new THREE.Mesh(innerArchGeoL, goldMat)
+    innerL.position.x = -1.08
+    tiaraGroup.add(innerL)
+
+    const innerR = new THREE.Mesh(innerArchGeoR, goldMat)
+    innerR.position.x = 1.08
+    tiaraGroup.add(innerR)
+
+    // ── 5. Outer arches ×2 ────────────────────────────────────
+    const outerArchShape = makeRoundedArch(0.60, 0.26)
+    const outerArchGeoL = extrude(outerArchShape, 0.15, 0.028)
+    const outerArchGeoR = extrude(outerArchShape, 0.15, 0.028)
+
+    const outerL = new THREE.Mesh(outerArchGeoL, goldMat)
+    outerL.position.set(-2.12, 0, 0)
+    outerL.rotation.z = 0.13
+    tiaraGroup.add(outerL)
+
+    const outerR = new THREE.Mesh(outerArchGeoR, goldMat)
+    outerR.position.set(2.12, 0, 0)
+    outerR.rotation.z = -0.13
+    tiaraGroup.add(outerR)
+
+    // ── 6. Side scrolls/curls ×2 (TubeGeometry) ───────────────
+    const makeCurl = (side) => {
+      const pts = [
+        new THREE.Vector3(side * 2.62, 0.20, 0.10),
+        new THREE.Vector3(side * 2.92, 0.38, 0.09),
+        new THREE.Vector3(side * 3.18, 0.50, 0.07),
+        new THREE.Vector3(side * 3.38, 0.42, 0.05),
+        new THREE.Vector3(side * 3.50, 0.26, 0.03),
+        new THREE.Vector3(side * 3.44, 0.10, 0.01),
+        new THREE.Vector3(side * 3.26, 0.04, -0.01),
+      ]
+      const curve = new THREE.CatmullRomCurve3(pts)
+      const geo = new THREE.TubeGeometry(curve, 22, 0.048, 8, false)
+      allGeos.push(geo)
+      return geo
+    }
+
+    tiaraGroup.add(new THREE.Mesh(makeCurl(-1), goldMat))
+    tiaraGroup.add(new THREE.Mesh(makeCurl(1), goldMat))
+
+    // ── 7. Gem shapes (marquise/navette) ×3 ───────────────────
+    const makeGemShape = (halfH, halfW) => {
+      const s = new THREE.Shape()
+      s.moveTo(0, halfH)
+      s.bezierCurveTo(halfW * 0.85, halfH * 0.5, halfW, halfH * 0.08, halfW, 0)
+      s.bezierCurveTo(halfW, -halfH * 0.08, halfW * 0.85, -halfH * 0.5, 0, -halfH)
+      s.bezierCurveTo(-halfW * 0.85, -halfH * 0.5, -halfW, -halfH * 0.08, -halfW, 0)
+      s.bezierCurveTo(-halfW, halfH * 0.08, -halfW * 0.85, halfH * 0.5, 0, halfH)
+      s.closePath()
+      return s
+    }
+
+    // Center gem (large, inside center arch)
+    const centerGemGeo = new THREE.ShapeGeometry(makeGemShape(0.58, 0.22))
+    allGeos.push(centerGemGeo)
+    const centerGem = new THREE.Mesh(centerGemGeo, gemMat)
+    centerGem.position.set(0, 0.65, 0.19)
+    tiaraGroup.add(centerGem)
+
+    // Inner gems ×2
+    const innerGemGeo = new THREE.ShapeGeometry(makeGemShape(0.38, 0.15))
+    allGeos.push(innerGemGeo)
+    ;[-1.08, 1.08].forEach(x => {
+      const g = new THREE.Mesh(innerGemGeo, gemMat)
+      g.position.set(x, 0.30, 0.18)
+      tiaraGroup.add(g)
+    })
+
+    // ── 8. Studs along band top edge ──────────────────────────
+    const studGeo = new THREE.SphereGeometry(0.058, 9, 9)
+    allGeos.push(studGeo)
+    const studXs = [-3.15, -2.65, -2.15, -1.65, -1.15, -0.65, -0.22,
+                     0.22,  0.65,  1.15,  1.65,  2.15,  2.65,  3.15]
+    studXs.forEach(x => {
+      const stud = new THREE.Mesh(studGeo, goldMat)
+      stud.position.set(x, 0.16, 0.11)
+      tiaraGroup.add(stud)
+    })
+
+    // ── Center the whole tiara group ──────────────────────────
+    const box = new THREE.Box3().setFromObject(tiaraGroup)
+    const center = box.getCenter(new THREE.Vector3())
+    tiaraGroup.position.sub(center)
+
+    scene.add(tiaraGroup)
 
     // ── Mouse interaction ──────────────────────────────────────
     const handleMouse = (e) => {
@@ -131,7 +238,7 @@ export default function CrownCanvas() {
     const handleOrientation = (e) => {
       if (e.gamma === null) return
       usingOrientRef.current = true
-      deviceOrientRef.current.x = Math.max(-1, Math.min(1, e.beta  / 45))
+      deviceOrientRef.current.x = Math.max(-1, Math.min(1, e.beta / 45))
       deviceOrientRef.current.y = Math.max(-1, Math.min(1, e.gamma / 45))
     }
 
@@ -140,26 +247,20 @@ export default function CrownCanvas() {
       if (typeof DeviceOrientationEvent.requestPermission === 'function') {
         try {
           const perm = await DeviceOrientationEvent.requestPermission()
-          if (perm === 'granted') {
-            window.addEventListener('deviceorientation', handleOrientation)
-          }
-        } catch (_) {
-          // permission denied or not a touch device
-        }
+          if (perm === 'granted') window.addEventListener('deviceorientation', handleOrientation)
+        } catch (_) {}
       } else {
         window.addEventListener('deviceorientation', handleOrientation)
       }
     }
-
-    if ('ontouchstart' in window) {
-      setupOrientation()
-    }
+    if ('ontouchstart' in window) setupOrientation()
 
     // ── Resize ─────────────────────────────────────────────────
     const handleResize = () => {
       if (!canvas) return
       const w = canvas.clientWidth
       const h = canvas.clientHeight
+      if (!w || !h) return
       camera.aspect = w / h
       camera.updateProjectionMatrix()
       renderer.setSize(w, h, false)
@@ -168,30 +269,35 @@ export default function CrownCanvas() {
 
     // ── Animation loop ─────────────────────────────────────────
     let animId
+    let t = 0
+    let autoRot = 0
 
     const animate = () => {
       animId = requestAnimationFrame(animate)
+      t += 0.012
 
-      if ('ontouchstart' in window) {
+      // Breathing
+      tiaraGroup.rotation.z = Math.sin(t * 0.9) * 0.018
+      const breathe = 1 + Math.sin(t * 1.1) * 0.010
+      tiaraGroup.scale.setScalar(breathe)
+
+      const isMobile = 'ontouchstart' in window
+      if (isMobile) {
         if (usingOrientRef.current) {
-          // tilt by device orientation
-          crownGroup.rotation.y += (deviceOrientRef.current.y * 0.5 - crownGroup.rotation.y) * 0.06
-          crownGroup.rotation.x += (deviceOrientRef.current.x * 0.25 - crownGroup.rotation.x) * 0.06
+          tiaraGroup.rotation.y += (deviceOrientRef.current.y * 0.45 - tiaraGroup.rotation.y) * 0.06
+          tiaraGroup.rotation.x += (deviceOrientRef.current.x * 0.20 - tiaraGroup.rotation.x) * 0.06
         } else {
-          // auto-rotate gently
-          autoRotRef.current += 0.012
-          crownGroup.rotation.y = Math.sin(autoRotRef.current) * 0.45
-          crownGroup.rotation.x = Math.sin(autoRotRef.current * 0.6) * 0.12
+          autoRot += 0.010
+          tiaraGroup.rotation.y = Math.sin(autoRot) * 0.42
+          tiaraGroup.rotation.x = Math.sin(autoRot * 0.6) * 0.10
         }
       } else {
-        // desktop: follow mouse
-        crownGroup.rotation.y += (mouseRef.current.x * 0.45 - crownGroup.rotation.y) * 0.06
-        crownGroup.rotation.x += (-mouseRef.current.y * 0.22 - crownGroup.rotation.x) * 0.06
+        tiaraGroup.rotation.y += (mouseRef.current.x * 0.42 - tiaraGroup.rotation.y) * 0.06
+        tiaraGroup.rotation.x += (-mouseRef.current.y * 0.18 - tiaraGroup.rotation.x) * 0.06
       }
 
       renderer.render(scene, camera)
     }
-
     animate()
 
     // ── Cleanup ────────────────────────────────────────────────
@@ -200,14 +306,10 @@ export default function CrownCanvas() {
       window.removeEventListener('mousemove', handleMouse)
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('deviceorientation', handleOrientation)
-
-      crownGeo.dispose()
-      crownMat.dispose()
-      diamondGeo.dispose()
-      diamondEdges.dispose()
-      circleGeo.dispose()
-      circleEdges.dispose()
-      lineMat.dispose()
+      allGeos.forEach(g => g.dispose())
+      goldMat.dispose()
+      gemMat.dispose()
+      if (envTexture) envTexture.dispose()
       renderer.dispose()
     }
   }, [])
@@ -215,7 +317,6 @@ export default function CrownCanvas() {
   return (
     <canvas
       ref={mountRef}
-      className="crown-canvas"
       style={{ width: '100%', height: '100%', display: 'block' }}
     />
   )

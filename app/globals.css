@@ -2,8 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── CSS Variables ─── */
 :root {
   --cream: #f0e6d3;
+  --gold: #D4A843;
   --dark-red: #8b1a1a;
   --deep-red: #5c0d0d;
   --mid-red: #7a1212;
@@ -16,28 +18,26 @@
   box-sizing: border-box;
 }
 
-body {
-  background: #1a0a0a;
-  background-image: radial-gradient(ellipse at 50% 0%, #a82020 0%, #7a1212 45%, #3a0808 100%);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 24px 16px 48px;
-  overflow-x: hidden;
+html {
+  scroll-behavior: smooth;
 }
 
-/* ─── Animations ─── */
+body {
+  overflow-x: hidden;
+  font-family: var(--font-lora), serif;
+  background: #1a0a0a;
+}
+
+/* ─── Keyframe Animations ─── */
 
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.85); }
+  50%       { opacity: 0.9; transform: scale(1.15); }
 }
 
 @keyframes floatBalloon {
@@ -45,82 +45,19 @@ body {
   50%       { transform: translateY(-10px) rotate(var(--rot, 0deg)); }
 }
 
-@keyframes twinkle {
-  0%, 100% { opacity: 0.25; transform: scale(0.9); }
-  50%       { opacity: 0.9; transform: scale(1.1); }
-}
-
 @keyframes buntingSwing {
   0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(3px); }
+  50%       { transform: translateY(4px); }
 }
 
-/* ─── Flyer card ─── */
-.flyer-card {
-  width: 100%;
-  max-width: 420px;
-  background-image: radial-gradient(ellipse at top, #a82020 0%, #7a1212 50%, #5c0d0d 100%);
-  border-radius: 6px;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 28px 40px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+@keyframes scrollBounce {
+  0%, 100% { transform: translateY(0); opacity: 0.45; }
+  50%       { transform: translateY(8px); opacity: 0.7; }
 }
 
-/* noise texture overlay */
-.flyer-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
-  pointer-events: none;
-  opacity: 0.25;
-  z-index: 0;
-}
-
-/* ─── Fade-up stagger helpers ─── */
-.anim-1 { animation: fadeUp 0.6s ease both; }
-.anim-2 { animation: fadeUp 0.6s 0.12s ease both; }
-.anim-3 { animation: fadeUp 0.6s 0.24s ease both; }
-.anim-4 { animation: fadeUp 0.6s 0.36s ease both; }
-.anim-5 { animation: fadeUp 0.6s 0.48s ease both; }
-.anim-6 { animation: fadeUp 0.6s 0.60s ease both; }
-.anim-7 { animation: fadeUp 0.6s 0.72s ease both; }
-
-/* ─── Star decoration ─── */
-.star-deco {
-  position: absolute;
-  color: var(--cream);
-  pointer-events: none;
-  z-index: 1;
-  animation: twinkle 2.5s ease-in-out infinite;
-}
-
-/* ─── Crown canvas container ─── */
-.crown-container {
-  width: 200px;
-  height: 160px;
-  position: relative;
-  z-index: 2;
-  margin-top: 56px;
-  cursor: none;
-}
-
-.crown-container canvas {
-  display: block;
-}
-
-/* ─── Text styles ─── */
-.text-shadow-red {
-  text-shadow: 2px 2px 0px var(--shadow-red), -1px -1px 0px var(--shadow-red);
-}
-
-/* ─── Balloons ─── */
+/* ─── Balloon animations ─── */
 .balloon-float-1 {
-  --rot: -8deg;
+  --rot: -10deg;
   animation: floatBalloon 3.2s ease-in-out infinite;
 }
 .balloon-float-2 {
@@ -128,18 +65,26 @@ body {
   animation: floatBalloon 3.8s 0.4s ease-in-out infinite;
 }
 .balloon-float-3 {
-  --rot: 8deg;
+  --rot: 10deg;
   animation: floatBalloon 3.5s 0.8s ease-in-out infinite;
 }
 
+/* ─── Stagger fade-up helpers ─── */
+.anim-1 { animation: fadeUp 0.6s ease both; }
+.anim-2 { animation: fadeUp 0.6s 0.12s ease both; }
+.anim-3 { animation: fadeUp 0.6s 0.24s ease both; }
+.anim-4 { animation: fadeUp 0.6s 0.36s ease both; }
+.anim-5 { animation: fadeUp 0.6s 0.48s ease both; }
+
 /* ─── Date box ─── */
 .date-box {
-  border: 2px solid rgba(240, 230, 211, 0.85);
+  border: 2px solid rgba(240, 230, 211, 0.80);
   border-radius: 40px;
-  padding: 7px 28px;
+  padding: 8px 28px;
+  display: inline-block;
 }
 
-/* ─── Calendar button ─── */
+/* ─── Google Calendar button ─── */
 .cal-btn {
   display: flex;
   align-items: center;
@@ -153,25 +98,15 @@ body {
   border-radius: 40px;
   text-decoration: none;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  transition: background 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+  box-shadow: 0 4px 22px rgba(0, 0, 0, 0.38);
   letter-spacing: 0.3px;
   white-space: nowrap;
+  border: none;
 }
 
 .cal-btn:hover {
   background: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
-}
-
-/* ─── Responsive tweaks ─── */
-@media (max-width: 420px) {
-  .flyer-card {
-    padding: 0 20px 32px;
-  }
-  .crown-container {
-    width: 170px;
-    height: 136px;
-  }
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.48);
 }

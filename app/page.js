@@ -1,16 +1,11 @@
-import Flyer from '../components/Flyer'
+import HeroSection from '../components/HeroSection'
+import DetailsSection from '../components/DetailsSection'
 
 export default function Home() {
   return (
-    <main
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        width: '100%',
-      }}
-    >
-      <Flyer />
+    <main>
+      <HeroSection />
+      <DetailsSection />
     </main>
   )
 }
