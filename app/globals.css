@@ -55,6 +55,11 @@ body {
   50%       { transform: translateY(8px); opacity: 0.7; }
 }
 
+@keyframes tiaraFloat {
+  0%, 100% { transform: rotate(6deg) translateY(0px); }
+  50%       { transform: rotate(6deg) translateY(-9px); }
+}
+
 /* ─── Balloon animations ─── */
 .balloon-float-1 {
   --rot: -10deg;

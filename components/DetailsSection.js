@@ -150,6 +150,18 @@ function CalIcon() {
   )
 }
 
+// ── SVG: Map pin icon ─────────────────────────────────────────
+function MapIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="#7a1212" strokeWidth="2" fill="none" />
+      <circle cx="12" cy="9" r="2.5" stroke="#7a1212" strokeWidth="2" />
+    </svg>
+  )
+}
+
+const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=Q+204+Residencia+Imperium+%C3%81guas+Claras+Bras%C3%ADlia+DF+71900-000'
+
 // ── Main Details Section ──────────────────────────────────────
 export default function DetailsSection() {
   return (
@@ -262,17 +274,27 @@ export default function DetailsSection() {
           }}
         />
 
-        {/* Calendar button */}
-        <a
-          className="cal-btn"
-          href={calUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ animation: 'fadeUp 0.7s 0.5s ease both' }}
-        >
-          <CalIcon />
-          Salvar no Google Calendar
-        </a>
+        {/* Buttons row */}
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center', animation: 'fadeUp 0.7s 0.5s ease both' }}>
+          <a
+            className="cal-btn"
+            href={calUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <CalIcon />
+            Salvar no Google Calendar
+          </a>
+          <a
+            className="cal-btn"
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <MapIcon />
+            Ver endereço
+          </a>
+        </div>
       </div>
     </section>
   )
