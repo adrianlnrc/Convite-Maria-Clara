@@ -89,6 +89,35 @@ body {
   display: inline-block;
 }
 
+/* ─── RSVP form inputs ─── */
+.rsvp-input {
+  width: 100%;
+  background: rgba(26, 5, 5, 0.5);
+  border: 1.5px solid rgba(240, 230, 211, 0.35);
+  border-radius: 40px;
+  padding: 13px 24px;
+  color: #f0e6d3;
+  font-family: var(--font-lora), serif;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.3px;
+}
+
+.rsvp-input::placeholder {
+  color: rgba(240, 230, 211, 0.35);
+}
+
+.rsvp-input:focus {
+  border-color: #D4A843;
+  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.12);
+}
+
+.rsvp-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ─── Google Calendar button ─── */
 .cal-btn {
   display: flex;
