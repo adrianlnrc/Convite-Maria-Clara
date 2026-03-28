@@ -1,27 +1,32 @@
-import { NextResponse } from 'next/server'
+import { google } from 'googleapis'
 
 export async function POST(req) {
-  const { nome, telefone } = await req.json()
+  const { nomes, confirmado } = await req.json()
 
-  if (!nome?.trim() || !telefone?.trim()) {
-    return NextResponse.json({ error: 'Campos obrigatórios.' }, { status: 400 })
+  const nomesValidos = Array.isArray(nomes) ? nomes.map(n => String(n).trim()).filter(Boolean) : []
+  if (nomesValidos.length === 0 || confirmado === null || confirmado === undefined) {
+    return Response.json({ error: 'Dados inválidos.' }, { status: 400 })
   }
 
-  const payload = {
-    nome: nome.trim(),
-    telefone: telefone.trim(),
-    data_criada: new Date().toLocaleString('pt-BR'),
-  }
-
-  const res = await fetch(process.env.N8N_WEBHOOK_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+  const auth = new google.auth.GoogleAuth({
+    credentials: {
+      client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    },
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   })
 
-  if (!res.ok) {
-    return NextResponse.json({ error: 'Erro ao notificar.' }, { status: 502 })
-  }
+  const sheets = google.sheets({ version: 'v4', auth })
+  const timestamp = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
 
-  return NextResponse.json({ ok: true })
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+    range: 'Sheet1!A:C',
+    valueInputOption: 'USER_ENTERED',
+    requestBody: {
+      values: [[timestamp, nomesValidos.join(', '), confirmado ? 'Sim' : 'Não']],
+    },
+  })
+
+  return Response.json({ ok: true })
 }

@@ -2,33 +2,94 @@
 
 import { useState } from 'react'
 
-function formatPhone(value) {
-  const digits = value.replace(/\D/g, '').slice(0, 11)
-  if (digits.length <= 2) return digits
-  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
-  if (digits.length <= 11)
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
-  return value
+// ── Google Calendar URL ───────────────────────────────────────
+const calUrl = (() => {
+  const u = new URL('https://www.google.com/calendar/render')
+  u.searchParams.set('action', 'TEMPLATE')
+  u.searchParams.set('text', '20 Anos Maria Clara 🎉')
+  u.searchParams.set('dates', '20260501T193000/20260502T000000')
+  u.searchParams.set('details', 'Festa de aniversário de 20 anos, Venha comemorar comigo!')
+  u.searchParams.set('location', 'Quarta 204 lote 7, Residencial Impérium, Águas Claras')
+  return u.toString()
+})()
+
+function CalIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="4" width="18" height="17" rx="2" stroke="#7a1212" strokeWidth="2" />
+      <line x1="3" y1="9" x2="21" y2="9" stroke="#7a1212" strokeWidth="2" />
+      <line x1="8" y1="2" x2="8" y2="6" stroke="#7a1212" strokeWidth="2" strokeLinecap="round" />
+      <line x1="16" y1="2" x2="16" y2="6" stroke="#7a1212" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function PlusIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function TrashIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"
+        stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function XIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
 }
 
 export default function RSVPSection() {
-  const [nome, setNome] = useState('')
-  const [telefone, setTelefone] = useState('')
+  const [nomes, setNomes] = useState([''])
+  const [confirmado, setConfirmado] = useState(null) // true | false | null
   const [status, setStatus] = useState('idle') // idle | loading | success | error
 
-  function handlePhone(e) {
-    setTelefone(formatPhone(e.target.value))
+  function addNome() {
+    if (nomes.length >= 10) return
+    setNomes([...nomes, ''])
+  }
+
+  function removeNome(index) {
+    if (nomes.length <= 1) return
+    setNomes(nomes.filter((_, i) => i !== index))
+  }
+
+  function updateNome(index, value) {
+    const updated = [...nomes]
+    updated[index] = value
+    setNomes(updated)
   }
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!nome.trim() || !telefone.trim()) return
+    const nomesValidos = nomes.map(n => n.trim()).filter(Boolean)
+    if (nomesValidos.length === 0 || confirmado === null) return
+
     setStatus('loading')
     try {
       const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, telefone }),
+        body: JSON.stringify({ nomes: nomesValidos, confirmado }),
       })
       if (!res.ok) throw new Error()
       setStatus('success')
@@ -37,8 +98,11 @@ export default function RSVPSection() {
     }
   }
 
+  const isFormValid = nomes.some(n => n.trim()) && confirmado !== null
+
   return (
     <section
+      id="rsvp"
       style={{
         minHeight: '100vh',
         width: '100%',
@@ -52,16 +116,7 @@ export default function RSVPSection() {
       }}
     >
       {/* Decorative divider */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem',
-          marginBottom: '2.5rem',
-          width: '100%',
-          maxWidth: 480,
-        }}
-      >
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem', width: '100%', maxWidth: 480 }}>
         <div style={{ flex: 1, height: 1, background: 'rgba(212,168,67,0.35)' }} />
         <span style={{ color: '#D4A843', fontSize: 18, opacity: 0.8 }}>✦</span>
         <div style={{ flex: 1, height: 1, background: 'rgba(212,168,67,0.35)' }} />
@@ -96,14 +151,10 @@ export default function RSVPSection() {
       </p>
 
       {status === 'success' ? (
-        <div
-          style={{
-            textAlign: 'center',
-            animation: 'fadeUp 0.6s ease both',
-            maxWidth: 400,
-          }}
-        >
-          <div style={{ fontSize: 48, marginBottom: '1rem' }}>🎉</div>
+        <div style={{ textAlign: 'center', animation: 'fadeUp 0.6s ease both', maxWidth: 420 }}>
+          <div style={{ fontSize: 48, marginBottom: '1rem' }}>
+            {confirmado ? '🎉' : '😢'}
+          </div>
           <p
             style={{
               fontFamily: 'var(--font-playfair), serif',
@@ -113,17 +164,33 @@ export default function RSVPSection() {
               marginBottom: '0.5rem',
             }}
           >
-            Presença confirmada!
+            {confirmado ? 'Presença confirmada!' : 'Que pena que não poderá ir!'}
           </p>
           <p
             style={{
               fontFamily: 'var(--font-lora), serif',
               fontSize: '0.95rem',
               color: 'rgba(240,230,211,0.6)',
+              marginBottom: '1.5rem',
             }}
           >
-            Te esperamos lá, {nome.split(' ')[0]}!
+            {confirmado
+              ? `Te esperamos lá, ${nomes[0].split(' ')[0]}!`
+              : 'Obrigada por avisar! Vamos sentir sua falta.'}
           </p>
+
+          {confirmado && (
+            <a
+              className="cal-btn"
+              href={calUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'inline-flex' }}
+            >
+              <CalIcon />
+              Salvar no Google Calendar
+            </a>
+          )}
         </div>
       ) : (
         <form
@@ -136,37 +203,189 @@ export default function RSVPSection() {
             maxWidth: 420,
           }}
         >
-          <input
-            className="rsvp-input"
-            type="text"
-            placeholder="Seu nome completo"
-            value={nome}
-            onChange={e => setNome(e.target.value)}
-            required
-            disabled={status === 'loading'}
-          />
-          <input
-            className="rsvp-input"
-            type="tel"
-            placeholder="WhatsApp (ex: 61 9xxxx-xxxx)"
-            value={telefone}
-            onChange={handlePhone}
-            required
-            disabled={status === 'loading'}
-          />
+          {/* Names */}
+          <label
+            style={{
+              fontFamily: 'var(--font-lora), serif',
+              fontSize: '0.85rem',
+              color: 'rgba(240,230,211,0.6)',
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              marginBottom: '-0.3rem',
+            }}
+          >
+            Quem vai? (nome completo)
+          </label>
+
+          {nomes.map((nome, i) => (
+            <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              <input
+                className="rsvp-input"
+                type="text"
+                placeholder={i === 0 ? 'Seu nome completo' : `Acompanhante ${i}`}
+                value={nome}
+                onChange={e => updateNome(i, e.target.value)}
+                required={i === 0}
+                disabled={status === 'loading'}
+              />
+              {nomes.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeNome(i)}
+                  disabled={status === 'loading'}
+                  style={{
+                    background: 'rgba(240,230,211,0.08)',
+                    border: '1.5px solid rgba(240,230,211,0.2)',
+                    borderRadius: '50%',
+                    width: 36,
+                    height: 36,
+                    minWidth: 36,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'rgba(240,230,211,0.5)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.borderColor = 'rgba(255,120,120,0.5)'
+                    e.currentTarget.style.color = 'rgba(255,120,120,0.8)'
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.borderColor = 'rgba(240,230,211,0.2)'
+                    e.currentTarget.style.color = 'rgba(240,230,211,0.5)'
+                  }}
+                >
+                  <TrashIcon />
+                </button>
+              )}
+            </div>
+          ))}
+
+          {nomes.length < 10 && (
+            <button
+              type="button"
+              onClick={addNome}
+              disabled={status === 'loading'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                background: 'transparent',
+                border: '1.5px dashed rgba(240,230,211,0.25)',
+                borderRadius: 40,
+                padding: '10px 20px',
+                color: 'rgba(240,230,211,0.5)',
+                fontFamily: 'var(--font-lora), serif',
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                letterSpacing: '0.3px',
+              }}
+              onMouseOver={e => {
+                e.currentTarget.style.borderColor = 'rgba(212,168,67,0.5)'
+                e.currentTarget.style.color = '#D4A843'
+              }}
+              onMouseOut={e => {
+                e.currentTarget.style.borderColor = 'rgba(240,230,211,0.25)'
+                e.currentTarget.style.color = 'rgba(240,230,211,0.5)'
+              }}
+            >
+              <PlusIcon />
+              Adicionar acompanhante
+            </button>
+          )}
+
+          {/* Attendance toggle */}
+          <label
+            style={{
+              fontFamily: 'var(--font-lora), serif',
+              fontSize: '0.85rem',
+              color: 'rgba(240,230,211,0.6)',
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              marginTop: '0.5rem',
+              marginBottom: '-0.3rem',
+            }}
+          >
+            Você poderá ir?
+          </label>
+
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button
+              type="button"
+              onClick={() => setConfirmado(true)}
+              disabled={status === 'loading'}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: '14px 20px',
+                borderRadius: 40,
+                border: confirmado === true
+                  ? '2px solid #D4A843'
+                  : '1.5px solid rgba(240,230,211,0.25)',
+                background: confirmado === true
+                  ? 'rgba(212,168,67,0.12)'
+                  : 'rgba(26,5,5,0.5)',
+                color: confirmado === true ? '#D4A843' : 'rgba(240,230,211,0.6)',
+                fontFamily: 'var(--font-lora), serif',
+                fontSize: '0.95rem',
+                fontWeight: confirmado === true ? 600 : 400,
+                cursor: 'pointer',
+                transition: 'all 0.25s ease',
+              }}
+            >
+              <CheckIcon />
+              Vou conseguir ir
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setConfirmado(false)}
+              disabled={status === 'loading'}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: '14px 20px',
+                borderRadius: 40,
+                border: confirmado === false
+                  ? '2px solid rgba(255,120,120,0.6)'
+                  : '1.5px solid rgba(240,230,211,0.25)',
+                background: confirmado === false
+                  ? 'rgba(255,120,120,0.08)'
+                  : 'rgba(26,5,5,0.5)',
+                color: confirmado === false ? 'rgba(255,140,140,0.9)' : 'rgba(240,230,211,0.6)',
+                fontFamily: 'var(--font-lora), serif',
+                fontSize: '0.95rem',
+                fontWeight: confirmado === false ? 600 : 400,
+                cursor: 'pointer',
+                transition: 'all 0.25s ease',
+              }}
+            >
+              <XIcon />
+              Não vou conseguir
+            </button>
+          </div>
 
           <button
             type="submit"
             className="cal-btn"
-            disabled={status === 'loading'}
+            disabled={status === 'loading' || !isFormValid}
             style={{
               justifyContent: 'center',
               marginTop: '0.5rem',
-              opacity: status === 'loading' ? 0.7 : 1,
-              cursor: status === 'loading' ? 'not-allowed' : 'pointer',
+              opacity: (status === 'loading' || !isFormValid) ? 0.5 : 1,
+              cursor: (status === 'loading' || !isFormValid) ? 'not-allowed' : 'pointer',
             }}
           >
-            {status === 'loading' ? 'Enviando...' : 'Confirmar Presença'}
+            {status === 'loading' ? 'Enviando...' : 'Enviar Resposta'}
           </button>
 
           {status === 'error' && (
@@ -178,23 +397,14 @@ export default function RSVPSection() {
                 textAlign: 'center',
               }}
             >
-              Erro ao confirmar. Tente novamente.
+              Erro ao enviar. Tente novamente.
             </p>
           )}
         </form>
       )}
 
-      {/* Bottom decorative divider */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem',
-          marginTop: '3rem',
-          width: '100%',
-          maxWidth: 480,
-        }}
-      >
+      {/* Bottom divider */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '3rem', width: '100%', maxWidth: 480 }}>
         <div style={{ flex: 1, height: 1, background: 'rgba(212,168,67,0.2)' }} />
         <span style={{ color: '#D4A843', fontSize: 14, opacity: 0.5 }}>✦</span>
         <div style={{ flex: 1, height: 1, background: 'rgba(212,168,67,0.2)' }} />
