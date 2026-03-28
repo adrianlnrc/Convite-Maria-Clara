@@ -8,25 +8,30 @@ export async function POST(req) {
     return Response.json({ error: 'Dados inválidos.' }, { status: 400 })
   }
 
-  const auth = new google.auth.GoogleAuth({
-    credentials: {
-      client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    },
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  })
+  try {
+    const auth = new google.auth.GoogleAuth({
+      credentials: {
+        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      },
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    })
 
-  const sheets = google.sheets({ version: 'v4', auth })
-  const timestamp = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+    const sheets = google.sheets({ version: 'v4', auth })
+    const timestamp = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
 
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: process.env.GOOGLE_SHEETS_ID,
-    range: 'Sheet1!A:C',
-    valueInputOption: 'USER_ENTERED',
-    requestBody: {
-      values: [[timestamp, nomesValidos.join(', '), confirmado ? 'Sim' : 'Não']],
-    },
-  })
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+      range: 'A:C',
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [[timestamp, nomesValidos.join(', '), confirmado ? 'Sim' : 'Não']],
+      },
+    })
 
-  return Response.json({ ok: true })
+    return Response.json({ ok: true })
+  } catch (err) {
+    console.error('Google Sheets error:', err?.message ?? err)
+    return Response.json({ error: 'Erro ao salvar resposta.' }, { status: 500 })
+  }
 }
