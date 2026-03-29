@@ -35,6 +35,6 @@ export async function POST(req) {
     return Response.json({ ok: true })
   } catch (err) {
     console.error('Google Sheets error:', err?.message ?? err)
-    return Response.json({ error: 'Erro ao salvar resposta.', detail: err?.message ?? String(err) }, { status: 500 })
+    return Response.json({ error: 'Erro ao salvar resposta.' }, { status: 500 })
   }
 }

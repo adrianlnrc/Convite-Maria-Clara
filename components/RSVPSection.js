@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // ── Google Calendar URL ───────────────────────────────────────
 const calUrl = (() => {
@@ -58,6 +58,52 @@ function XIcon() {
   )
 }
 
+function ScrollHint() {
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    function onScroll() {
+      if (window.scrollY > 40) setVisible(false)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  if (!visible) return null
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        bottom: '2rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '0.4rem',
+        color: 'rgba(240,230,211,0.45)',
+        fontFamily: 'var(--font-lora), serif',
+        fontSize: '0.7rem',
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+        animation: 'scrollBounce 2.2s ease-in-out infinite',
+        zIndex: 2,
+        pointerEvents: 'none',
+      }}
+    >
+      <svg width="16" height="20" viewBox="0 0 16 20" fill="none">
+        <path
+          d="M8 2 L8 14 M3 10 L8 15 L13 10"
+          stroke="rgba(240,230,211,0.5)"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <span>Ver detalhes da festa ↓</span>
+    </div>
+  )
+}
+
 export default function RSVPSection() {
   const [nomes, setNomes] = useState([''])
   const [confirmado, setConfirmado] = useState(null) // true | false | null
@@ -93,6 +139,7 @@ export default function RSVPSection() {
       })
       if (!res.ok) throw new Error()
       setStatus('success')
+      window.dispatchEvent(new CustomEvent('rsvp-lit'))
     } catch {
       setStatus('error')
     }
@@ -104,7 +151,7 @@ export default function RSVPSection() {
     <section
       id="rsvp"
       style={{
-        minHeight: '100vh',
+        height: '100vh',
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -113,13 +160,15 @@ export default function RSVPSection() {
         background:
           'radial-gradient(ellipse at 50% 0%, #7a1212 0%, #3a0808 55%, #1a0505 100%)',
         padding: '4rem 1.5rem',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
       {/* Decorative divider */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem', width: '100%', maxWidth: 480 }}>
-        <div style={{ flex: 1, height: 1, background: 'rgba(212,168,67,0.35)' }} />
-        <span style={{ color: '#D4A843', fontSize: 18, opacity: 0.8 }}>✦</span>
-        <div style={{ flex: 1, height: 1, background: 'rgba(212,168,67,0.35)' }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', width: '100%', maxWidth: 480 }}>
+        <div style={{ flex: 1, height: 1, background: 'rgba(200,148,10,0.4)' }} />
+        <span style={{ color: '#C8940A', fontSize: 18, opacity: 0.85 }}>✦</span>
+        <div style={{ flex: 1, height: 1, background: 'rgba(200,148,10,0.4)' }} />
       </div>
 
       <h2
@@ -130,25 +179,59 @@ export default function RSVPSection() {
           color: '#f0e6d3',
           letterSpacing: '0.04em',
           textAlign: 'center',
-          marginBottom: '0.5rem',
+          marginBottom: '1.2rem',
+          textShadow: '3px 3px 0 #1a0a00, -1px -1px 0 #1a0a00',
         }}
       >
         Confirme sua Presença
       </h2>
 
-      <p
+      {/* Card de data e hora */}
+      <div
         style={{
-          fontFamily: 'var(--font-lora), serif',
-          fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
-          color: 'rgba(212,168,67,0.8)',
-          letterSpacing: '0.15em',
-          textAlign: 'center',
-          marginBottom: '2.5rem',
-          textTransform: 'uppercase',
+          width: '100%',
+          maxWidth: 400,
+          marginBottom: '2rem',
+          border: '1.5px solid rgba(200,148,10,0.45)',
+          borderRadius: 16,
+          padding: '18px 24px 16px',
+          background: 'rgba(26,5,5,0.5)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '0.5rem',
+          boxShadow: 'inset 0 0 40px rgba(200,148,10,0.05), 0 4px 20px rgba(0,0,0,0.35)',
         }}
       >
-        01 de Maio · 19h30
-      </p>
+        <p
+          style={{
+            fontFamily: 'var(--font-playfair), serif',
+            fontSize: 'clamp(1.05rem, 3.2vw, 1.35rem)',
+            fontWeight: 700,
+            color: '#C8940A',
+            letterSpacing: '0.05em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.55rem',
+          }}
+        >
+          <span style={{ opacity: 0.65, fontSize: '0.8em' }}>✦</span>
+          01 de Maio · Sexta-Feira
+          <span style={{ opacity: 0.65, fontSize: '0.8em' }}>✦</span>
+        </p>
+        <div style={{ width: 36, height: 1, background: 'rgba(200,148,10,0.3)' }} />
+        <p
+          style={{
+            fontFamily: 'var(--font-lora), serif',
+            fontSize: 'clamp(0.9rem, 2.6vw, 1.1rem)',
+            color: 'rgba(240,230,211,0.82)',
+            letterSpacing: '0.12em',
+          }}
+        >
+          🕢&nbsp; 19h30
+        </p>
+      </div>
 
       {status === 'success' ? (
         <div style={{ textAlign: 'center', animation: 'fadeUp 0.6s ease both', maxWidth: 420 }}>
@@ -214,7 +297,7 @@ export default function RSVPSection() {
               marginBottom: '-0.3rem',
             }}
           >
-            Quem vai? (nome completo)
+            Quem Vai? (nome completo, please! 😉)
           </label>
 
           {nomes.map((nome, i) => (
@@ -285,7 +368,7 @@ export default function RSVPSection() {
               }}
               onMouseOver={e => {
                 e.currentTarget.style.borderColor = 'rgba(212,168,67,0.5)'
-                e.currentTarget.style.color = '#D4A843'
+                e.currentTarget.style.color = '#C8940A'
               }}
               onMouseOut={e => {
                 e.currentTarget.style.borderColor = 'rgba(240,230,211,0.25)'
@@ -326,12 +409,12 @@ export default function RSVPSection() {
                 padding: '14px 20px',
                 borderRadius: 40,
                 border: confirmado === true
-                  ? '2px solid #D4A843'
+                  ? '2px solid #C8940A'
                   : '1.5px solid rgba(240,230,211,0.25)',
                 background: confirmado === true
-                  ? 'rgba(212,168,67,0.12)'
+                  ? 'rgba(200,148,10,0.12)'
                   : 'rgba(26,5,5,0.5)',
-                color: confirmado === true ? '#D4A843' : 'rgba(240,230,211,0.6)',
+                color: confirmado === true ? '#C8940A' : 'rgba(240,230,211,0.6)',
                 fontFamily: 'var(--font-lora), serif',
                 fontSize: '0.95rem',
                 fontWeight: confirmado === true ? 600 : 400,
@@ -403,12 +486,7 @@ export default function RSVPSection() {
         </form>
       )}
 
-      {/* Bottom divider */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '3rem', width: '100%', maxWidth: 480 }}>
-        <div style={{ flex: 1, height: 1, background: 'rgba(212,168,67,0.2)' }} />
-        <span style={{ color: '#D4A843', fontSize: 14, opacity: 0.5 }}>✦</span>
-        <div style={{ flex: 1, height: 1, background: 'rgba(212,168,67,0.2)' }} />
-      </div>
+      <ScrollHint />
     </section>
   )
 }

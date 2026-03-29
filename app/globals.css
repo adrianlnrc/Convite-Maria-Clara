@@ -5,7 +5,8 @@
 /* ─── CSS Variables ─── */
 :root {
   --cream: #f0e6d3;
-  --gold: #D4A843;
+  --gold: #C8940A;
+  --black-accent: #1a0a00;
   --dark-red: #8b1a1a;
   --deep-red: #5c0d0d;
   --mid-red: #7a1212;
@@ -55,9 +56,31 @@ body {
   50%       { transform: translateY(8px); opacity: 0.7; }
 }
 
-@keyframes tiaraFloat {
-  0%, 100% { transform: rotate(6deg) translateY(0px); }
-  50%       { transform: rotate(6deg) translateY(-9px); }
+@keyframes cakeFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-16px); }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1;    transform: scaleX(1)    scaleY(1); }
+  20%       { opacity: 0.8;  transform: scaleX(0.88) scaleY(1.09); }
+  40%       { opacity: 1;    transform: scaleX(1.07) scaleY(0.92); }
+  60%       { opacity: 0.85; transform: scaleX(0.93) scaleY(1.06); }
+  80%       { opacity: 0.95; transform: scaleX(1.04) scaleY(0.96); }
+}
+
+@keyframes flameAppear {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes flameWaver {
+  0%, 100% { transform: translateX(0px)     scaleX(1)    scaleY(1); }
+  18%       { transform: translateX(-1.3px)  scaleX(0.86) scaleY(1.11); }
+  36%       { transform: translateX(0.9px)   scaleX(1.08) scaleY(0.91); }
+  54%       { transform: translateX(-0.7px)  scaleX(0.93) scaleY(1.08); }
+  72%       { transform: translateX(1.1px)   scaleX(1.06) scaleY(0.94); }
+  88%       { transform: translateX(-0.3px)  scaleX(0.97) scaleY(1.03); }
 }
 
 /* ─── Balloon animations ─── */
@@ -109,8 +132,8 @@ body {
 }
 
 .rsvp-input:focus {
-  border-color: #D4A843;
-  box-shadow: 0 0 0 3px rgba(212, 168, 67, 0.12);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(200, 148, 10, 0.15);
 }
 
 .rsvp-input:disabled {
