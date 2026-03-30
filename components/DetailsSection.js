@@ -72,7 +72,7 @@ function CakeSVG({ candlesLit }) {
       viewBox="0 0 200 175"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ width: 'min(52vw, 210px)', height: 'auto' }}
+      style={{ width: 'min(48vw, 190px)', height: 'auto' }}
     >
       <defs>
         <linearGradient id="flameGrad" x1="50%" y1="100%" x2="50%" y2="0%">
@@ -278,7 +278,7 @@ export default function DetailsSection() {
   return (
     <section
       style={{
-        minHeight: '100vh',
+        minHeight: '100svh',
         width: '100%',
         display: 'flex',
         alignItems: 'center',
@@ -287,7 +287,7 @@ export default function DetailsSection() {
           'radial-gradient(ellipse at 50% 18%, #b02424 0%, #7a1212 32%, #3a0808 65%, #1a0505 100%)',
         position: 'relative',
         overflow: 'hidden',
-        padding: '5rem 1rem 4rem',
+        padding: 'clamp(2rem, 6vh, 4rem) 1rem clamp(1.5rem, 4vh, 3rem)',
       }}
     >
       <StarField />
@@ -297,7 +297,7 @@ export default function DetailsSection() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0.75rem',
+          gap: 'clamp(0.5rem, 1.5vh, 0.75rem)',
           maxWidth: 480,
           width: '100%',
           zIndex: 2,
@@ -419,18 +419,18 @@ export default function DetailsSection() {
             display: 'flex',
             gap: '0.75rem',
             justifyContent: 'center',
-            flexWrap: 'nowrap',
+            flexWrap: 'wrap',
             animation: 'fadeUp 0.7s 0.42s ease both',
             width: '100%',
           }}
         >
           <a className="cal-btn" href={calUrl} target="_blank" rel="noopener noreferrer"
-            style={{ flex: '0 1 auto', fontSize: 'clamp(0.75rem, 2vw, 0.92rem)', padding: '11px 18px', gap: '0.4rem' }}>
+            style={{ flex: '1 1 auto', justifyContent: 'center', fontSize: 'clamp(0.75rem, 2vw, 0.92rem)', padding: '11px 18px', gap: '0.4rem' }}>
             <CalIcon />
             Salvar no Google Calendar
           </a>
           <a className="cal-btn" href={mapsUrl} target="_blank" rel="noopener noreferrer"
-            style={{ flex: '0 1 auto', fontSize: 'clamp(0.75rem, 2vw, 0.92rem)', padding: '11px 18px', gap: '0.4rem' }}>
+            style={{ flex: '1 1 auto', justifyContent: 'center', fontSize: 'clamp(0.75rem, 2vw, 0.92rem)', padding: '11px 18px', gap: '0.4rem' }}>
             <MapIcon />
             Ver endereço
           </a>

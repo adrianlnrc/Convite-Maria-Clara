@@ -151,7 +151,8 @@ export default function RSVPSection() {
     <section
       id="rsvp"
       style={{
-        height: '100vh',
+        minHeight: '100svh',
+        height: 'auto',
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -159,13 +160,13 @@ export default function RSVPSection() {
         justifyContent: 'center',
         background:
           'radial-gradient(ellipse at 50% 18%, #b02424 0%, #7a1212 32%, #3a0808 65%, #1a0505 100%)',
-        padding: '4rem 1.5rem',
+        padding: 'clamp(2.5rem, 6vh, 4rem) 1.5rem',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
       {/* Decorative divider */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', width: '100%', maxWidth: 480 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: 'clamp(0.75rem, 2vh, 1.5rem)', width: '100%', maxWidth: 480 }}>
         <div style={{ flex: 1, height: 1, background: 'rgba(200,148,10,0.4)' }} />
         <span style={{ color: '#C8940A', fontSize: 18, opacity: 0.85 }}>✦</span>
         <div style={{ flex: 1, height: 1, background: 'rgba(200,148,10,0.4)' }} />
@@ -179,7 +180,7 @@ export default function RSVPSection() {
           color: '#ffffff',
           letterSpacing: '0.04em',
           textAlign: 'center',
-          marginBottom: '1.2rem',
+          marginBottom: 'clamp(0.6rem, 2vh, 1.2rem)',
           textShadow: '3px 3px 0 #1a0a00, -1px -1px 0 #1a0a00',
         }}
       >
@@ -191,7 +192,7 @@ export default function RSVPSection() {
         style={{
           width: '100%',
           maxWidth: 400,
-          marginBottom: '2rem',
+          marginBottom: 'clamp(0.75rem, 2vh, 1.5rem)',
           border: '2px solid #1a0a00',
           borderRadius: 40,
           padding: '14px 28px',
@@ -270,7 +271,7 @@ export default function RSVPSection() {
           style={{
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem',
+            gap: 'clamp(0.65rem, 2vh, 1rem)',
             width: '100%',
             maxWidth: 420,
           }}
