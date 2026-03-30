@@ -13,7 +13,7 @@
   --shadow-red: #3a0808;
 }
 
-*, *::before, *::after {
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -21,20 +21,12 @@
 
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
-  max-width: 100vw;
 }
 
 body {
   overflow-x: hidden;
-  max-width: 100vw;
   font-family: var(--font-lora), serif;
   background: #1a0a0a;
-}
-
-img, video, svg {
-  max-width: 100%;
-  height: auto;
 }
 
 /* ─── Keyframe Animations ─── */

@@ -108,6 +108,7 @@ export default function RSVPSection() {
   const [nomes, setNomes] = useState([''])
   const [confirmado, setConfirmado] = useState(null) // true | false | null
   const [status, setStatus] = useState('idle') // idle | loading | success | error
+  const [duplicados, setDuplicados] = useState([])
 
   function addNome() {
     if (nomes.length >= 10) return
@@ -123,6 +124,7 @@ export default function RSVPSection() {
     const updated = [...nomes]
     updated[index] = value
     setNomes(updated)
+    if (duplicados.length > 0) setDuplicados([])
   }
 
   async function handleSubmit(e) {
@@ -131,13 +133,22 @@ export default function RSVPSection() {
     if (nomesValidos.length === 0 || confirmado === null) return
 
     setStatus('loading')
+    setDuplicados([])
     try {
       const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nomes: nomesValidos, confirmado }),
       })
-      if (!res.ok) throw new Error()
+      const data = await res.json()
+      if (!res.ok) {
+        if (data.error === 'duplicate') {
+          setDuplicados(data.duplicados)
+          setStatus('idle')
+          return
+        }
+        throw new Error()
+      }
       setStatus('success')
       window.dispatchEvent(new CustomEvent('rsvp-lit'))
     } catch {
@@ -287,7 +298,7 @@ export default function RSVPSection() {
               marginBottom: '-0.3rem',
             }}
           >
-            Quem Vai? (nome completo)
+            Coloque seu nome e sobrenome
           </label>
 
           {nomes.map((nome, i) => (
@@ -366,7 +377,7 @@ export default function RSVPSection() {
               }}
             >
               <PlusIcon />
-              Adicionar acompanhante
+              Adicionar acompanhante/membro da família 
             </button>
           )}
 
@@ -460,6 +471,23 @@ export default function RSVPSection() {
           >
             {status === 'loading' ? 'Enviando...' : 'Enviar Resposta'}
           </button>
+
+          {duplicados.length > 0 && (
+            <p
+              style={{
+                fontFamily: 'var(--font-lora), serif',
+                fontSize: '0.85rem',
+                color: 'rgba(255,180,80,0.95)',
+                textAlign: 'center',
+                lineHeight: 1.5,
+              }}
+            >
+              {duplicados.length === 1
+                ? `"${duplicados[0]}" já confirmou presença.`
+                : `Os nomes ${duplicados.map(n => `"${n}"`).join(', ')} já confirmaram presença.`}
+              {' '}Por favor, verifique os nomes informados.
+            </p>
+          )}
 
           {status === 'error' && (
             <p

@@ -21,6 +21,26 @@ export async function POST(req) {
     })
 
     const sheets = google.sheets({ version: 'v4', auth })
+
+    // Verificar nomes duplicados na planilha
+    const existing = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.GOOGLE_SHEETS_ID,
+      range: 'B:B',
+    })
+    const rows = (existing.data.values || []).slice(1) // pula cabeçalho
+    const existingNames = new Set()
+    for (const row of rows) {
+      if (!row[0]) continue
+      for (const name of row[0].split(',')) {
+        const normalized = name.trim().toLowerCase()
+        if (normalized) existingNames.add(normalized)
+      }
+    }
+    const duplicados = nomesValidos.filter(n => existingNames.has(n.toLowerCase()))
+    if (duplicados.length > 0) {
+      return Response.json({ error: 'duplicate', duplicados }, { status: 409 })
+    }
+
     const timestamp = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
 
     await sheets.spreadsheets.values.append({
