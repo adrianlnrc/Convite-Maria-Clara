@@ -158,7 +158,7 @@ export default function RSVPSection() {
         alignItems: 'center',
         justifyContent: 'center',
         background:
-          'radial-gradient(ellipse at 50% 0%, #7a1212 0%, #3a0808 55%, #1a0505 100%)',
+          'radial-gradient(ellipse at 50% 18%, #b02424 0%, #7a1212 32%, #3a0808 65%, #1a0505 100%)',
         padding: '4rem 1.5rem',
         position: 'relative',
         overflow: 'hidden',
@@ -176,7 +176,7 @@ export default function RSVPSection() {
           fontFamily: 'var(--font-playfair), serif',
           fontSize: 'clamp(1.8rem, 6vw, 3rem)',
           fontWeight: 700,
-          color: '#f0e6d3',
+          color: '#ffffff',
           letterSpacing: '0.04em',
           textAlign: 'center',
           marginBottom: '1.2rem',
@@ -192,44 +192,46 @@ export default function RSVPSection() {
           width: '100%',
           maxWidth: 400,
           marginBottom: '2rem',
-          border: '1.5px solid rgba(200,148,10,0.45)',
-          borderRadius: 16,
-          padding: '18px 24px 16px',
-          background: 'rgba(26,5,5,0.5)',
-          backdropFilter: 'blur(6px)',
+          border: '2px solid #1a0a00',
+          borderRadius: 40,
+          padding: '14px 28px',
+          background: 'rgba(26,5,5,0.55)',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          gap: '0.5rem',
-          boxShadow: 'inset 0 0 40px rgba(200,148,10,0.05), 0 4px 20px rgba(0,0,0,0.35)',
+          alignItems: 'flex-start',
+          gap: '0.55rem',
+          boxShadow: '3px 3px 0 #1a0a00',
         }}
       >
         <p
           style={{
-            fontFamily: 'var(--font-playfair), serif',
-            fontSize: 'clamp(1.05rem, 3.2vw, 1.35rem)',
-            fontWeight: 700,
-            color: '#C8940A',
-            letterSpacing: '0.05em',
+            fontFamily: 'var(--font-lora), serif',
+            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+            fontWeight: 600,
+            color: '#ffffff',
+            letterSpacing: '0.04em',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.55rem',
+            gap: '0.6rem',
           }}
         >
-          <span style={{ opacity: 0.65, fontSize: '0.8em' }}>✦</span>
-          01 de Maio · Sexta-Feira
-          <span style={{ opacity: 0.65, fontSize: '0.8em' }}>✦</span>
+          <span style={{ fontSize: '1.1em' }}>📅</span>
+          <span>01/05/2026 &mdash; Sexta-feira</span>
         </p>
-        <div style={{ width: 36, height: 1, background: 'rgba(200,148,10,0.3)' }} />
         <p
           style={{
             fontFamily: 'var(--font-lora), serif',
-            fontSize: 'clamp(0.9rem, 2.6vw, 1.1rem)',
-            color: 'rgba(240,230,211,0.82)',
-            letterSpacing: '0.12em',
+            fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+            fontWeight: 600,
+            color: '#ffffff',
+            letterSpacing: '0.04em',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.6rem',
           }}
         >
-          🕢&nbsp; 19h30
+          <span style={{ fontSize: '1.1em' }}>🕢</span>
+          <span>19:30 as 00:00 </span>
         </p>
       </div>
 
@@ -261,19 +263,6 @@ export default function RSVPSection() {
               ? `Te esperamos lá, ${nomes[0].split(' ')[0]}!`
               : 'Obrigada por avisar! Vamos sentir sua falta.'}
           </p>
-
-          {confirmado && (
-            <a
-              className="cal-btn"
-              href={calUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: 'inline-flex' }}
-            >
-              <CalIcon />
-              Salvar no Google Calendar
-            </a>
-          )}
         </div>
       ) : (
         <form
@@ -291,13 +280,13 @@ export default function RSVPSection() {
             style={{
               fontFamily: 'var(--font-lora), serif',
               fontSize: '0.85rem',
-              color: 'rgba(240,230,211,0.6)',
+              color: 'rgba(255,245,230,0.85)',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               marginBottom: '-0.3rem',
             }}
           >
-            Quem Vai? (nome completo, please! 😉)
+            Quem Vai? (nome completo)
           </label>
 
           {nomes.map((nome, i) => (
@@ -385,7 +374,7 @@ export default function RSVPSection() {
             style={{
               fontFamily: 'var(--font-lora), serif',
               fontSize: '0.85rem',
-              color: 'rgba(240,230,211,0.6)',
+              color: 'rgba(255,245,230,0.85)',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               marginTop: '0.5rem',

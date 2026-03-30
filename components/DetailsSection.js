@@ -23,6 +23,18 @@ const STARS = [
   { top: '8%',  right: '15%', size: 8,  delay: '0.9s', dur: '3.5s' },
   { top: '22%', left: '3%',   size: 7,  delay: '1.1s', dur: '2.9s' },
   { top: '24%', right: '3%',  size: 7,  delay: '0.7s', dur: '3.1s' },
+  { top: '35%', left: '8%',   size: 6,  delay: '0.2s', dur: '3.4s' },
+  { top: '40%', right: '9%',  size: 9,  delay: '1.3s', dur: '2.7s' },
+  { top: '52%', left: '2%',   size: 7,  delay: '0.6s', dur: '3.0s' },
+  { top: '55%', right: '4%',  size: 6,  delay: '1.5s', dur: '3.3s' },
+  { top: '65%', left: '12%',  size: 8,  delay: '0.4s', dur: '2.6s' },
+  { top: '68%', right: '11%', size: 6,  delay: '1.0s', dur: '3.6s' },
+  { top: '78%', left: '6%',   size: 7,  delay: '0.8s', dur: '2.9s' },
+  { top: '80%', right: '7%',  size: 9,  delay: '0.2s', dur: '3.1s' },
+  { top: '88%', left: '20%',  size: 6,  delay: '1.2s', dur: '2.8s' },
+  { top: '90%', right: '18%', size: 7,  delay: '0.5s', dur: '3.5s' },
+  { top: '15%', left: '28%',  size: 5,  delay: '1.6s', dur: '3.0s' },
+  { top: '72%', right: '25%', size: 5,  delay: '0.9s', dur: '2.7s' },
 ]
 
 function StarField() {
@@ -53,14 +65,14 @@ const FLAME_DUR_INNER = ['0.55s', '0.61s', '0.51s']
 
 function CakeSVG({ candlesLit }) {
   const stroke = '#f0e6d3'
-  const sw = 2.1
+  const sw = 2.4
 
   return (
     <svg
       viewBox="0 0 200 175"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ width: 'min(72vw, 300px)', height: 'auto' }}
+      style={{ width: 'min(52vw, 210px)', height: 'auto' }}
     >
       <defs>
         <linearGradient id="flameGrad" x1="50%" y1="100%" x2="50%" y2="0%">
@@ -88,6 +100,9 @@ function CakeSVG({ candlesLit }) {
             stroke={stroke} strokeWidth={1.3} strokeLinecap="round" opacity={0.65} />
         </g>
       ))}
+
+      {/* ── CAKE BODY FILL (subtle dark red) ── */}
+      <rect x="22" y="90" width="156" height="72" fill="rgba(90,8,8,0.35)" />
 
       {/* ── FROSTING BUMPS (top of cake, 6 humps) ── */}
       <path
@@ -151,41 +166,6 @@ function CakeSVG({ candlesLit }) {
           />
         </g>
       ))}
-    </svg>
-  )
-}
-
-// ── Balloons ──────────────────────────────────────────────────
-function Balloons() {
-  const configs = [
-    { rot: -10, cls: 'balloon-float-1' },
-    { rot:   0, cls: 'balloon-float-2' },
-    { rot:  10, cls: 'balloon-float-3' },
-  ]
-  return (
-    <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 4 }}>
-      {configs.map(({ rot, cls }, i) => (
-        <svg key={i} className={cls} width="52" height="90" viewBox="0 0 52 90" fill="none"
-          style={{ transform: `rotate(${rot}deg)`, transformOrigin: 'bottom center' }}>
-          <ellipse cx="26" cy="30" rx="20" ry="26" stroke="#f0e6d3" strokeWidth="1.8" fill="none" />
-          <path d="M23,56 L26,62 L29,56" stroke="#f0e6d3" strokeWidth="1.4" fill="none" />
-          <path d="M26,62 Q20,72 26,82" stroke="rgba(240,230,211,0.55)" strokeWidth="1.2" fill="none" />
-          <ellipse cx="18" cy="20" rx="4" ry="6" stroke="rgba(240,230,211,0.25)" strokeWidth="1" fill="none" />
-        </svg>
-      ))}
-    </div>
-  )
-}
-
-// ── Gift boxes ────────────────────────────────────────────────
-function GiftBox({ style }) {
-  return (
-    <svg width="54" height="60" viewBox="0 0 56 62" fill="none" style={style}>
-      <rect x="6" y="24" width="44" height="34" rx="2" stroke="rgba(240,230,211,0.55)" strokeWidth="1.6" />
-      <rect x="2" y="16" width="52" height="10" rx="2" stroke="rgba(240,230,211,0.55)" strokeWidth="1.6" />
-      <line x1="28" y1="16" x2="28" y2="58" stroke="rgba(240,230,211,0.35)" strokeWidth="1.4" />
-      <path d="M28,16 Q22,6 15,10 Q10,14 15,17" stroke="rgba(240,230,211,0.55)" strokeWidth="1.4" fill="none" />
-      <path d="M28,16 Q34,6 41,10 Q46,14 41,17" stroke="rgba(240,230,211,0.55)" strokeWidth="1.4" fill="none" />
     </svg>
   )
 }
@@ -312,9 +292,6 @@ export default function DetailsSection() {
     >
       <StarField />
 
-      <GiftBox style={{ position: 'absolute', left: 8, bottom: 64, opacity: 0.5, pointerEvents: 'none' }} />
-      <GiftBox style={{ position: 'absolute', right: 8, bottom: 64, opacity: 0.4, transform: 'scaleX(-1)', pointerEvents: 'none' }} />
-
       <div
         style={{
           display: 'flex',
@@ -336,46 +313,38 @@ export default function DetailsSection() {
             letterSpacing: '0.06em',
             textAlign: 'center',
             lineHeight: 1,
-            textShadow: '3px 3px 0 #1a0a00, -1px -1px 0 #1a0a00, 0 0 60px rgba(200,148,10,0.2)',
+            whiteSpace: 'nowrap',
+            textShadow: '4px 4px 0 #1a0a00, -1px -2px 0 #1a0a00, 0 0 60px rgba(200,148,10,0.2)',
             animation: 'fadeUp 0.8s 0.05s ease both',
-            marginBottom: '0.1rem',
           }}
         >
           MARIA CLARA
         </h1>
 
-        {/* Ornamentos */}
-        <p
-          style={{
-            color: '#C8940A',
-            fontSize: 'clamp(0.75rem, 2vw, 0.9rem)',
-            letterSpacing: '0.55em',
-            opacity: 0.85,
-            animation: 'fadeUp 0.7s 0.12s ease both',
-          }}
-        >
-          ✦✦✦✦✦✦✦✦✦✦
-        </p>
-
-        {/* Badge 20 ANOS */}
+        {/* Badge destacado */}
         <div
           style={{
             display: 'inline-flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            background: '#C8940A',
-            color: '#1a0a00',
+            background: 'linear-gradient(135deg, #C8940A 0%, #9e6e05 100%)',
+            color: '#fff8ee',
             border: '2.5px solid #1a0a00',
             borderRadius: 40,
-            padding: '7px 28px',
+            padding: '10px 32px 9px',
             fontFamily: 'var(--font-playfair), serif',
             fontWeight: 900,
-            fontSize: 'clamp(0.95rem, 3vw, 1.25rem)',
-            letterSpacing: '0.32em',
-            boxShadow: '3px 3px 0 #1a0a00',
+            fontSize: 'clamp(0.88rem, 2.8vw, 1.1rem)',
+            letterSpacing: '0.18em',
+            lineHeight: 1.35,
+            textAlign: 'center',
+            textShadow: '1px 1px 2px rgba(0,0,0,0.45)',
+            boxShadow: '3px 3px 0 #1a0a00, 0 0 24px rgba(200,148,10,0.35)',
             animation: 'fadeUp 0.8s 0.18s ease both',
           }}
         >
-          20 ANOS
+          <span>FESTA DE ANIVERSÁRIO</span>
+          <span style={{ fontSize: '1.25em', letterSpacing: '0.26em' }}>DE 20 ANOS</span>
         </div>
 
         {/* Divider dourado */}
@@ -383,7 +352,7 @@ export default function DetailsSection() {
           style={{
             display: 'flex', alignItems: 'center', gap: '0.9rem',
             width: '100%', animation: 'fadeUp 0.7s 0.24s ease both',
-            marginTop: '0.2rem',
+            marginTop: '0.1rem',
           }}
         >
           <div style={{ flex: 1, height: 1, background: 'rgba(200,148,10,0.4)' }} />
@@ -392,77 +361,76 @@ export default function DetailsSection() {
         </div>
 
         {/* Bolo 2D */}
-        <div style={{ animation: 'cakeFloat 4s ease-in-out infinite', marginTop: '0.3rem' }}>
+        <div style={{ animation: 'cakeFloat 4s ease-in-out infinite', marginTop: '0.2rem' }}>
           <CakeSVG candlesLit={candlesLit} />
         </div>
 
-        {/* Evento */}
-        <p
+        {/* Data, hora e local — card com borda */}
+        <div
           style={{
-            fontFamily: 'var(--font-lora), serif',
-            fontSize: 'clamp(0.75rem, 2vw, 0.9rem)',
-            color: 'rgba(240,230,211,0.65)',
-            letterSpacing: '0.3em',
-            textTransform: 'uppercase',
-            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.35rem',
             animation: 'fadeUp 0.7s 0.3s ease both',
+            marginTop: '0.1rem',
+            border: '2px solid #1a0a00',
+            borderRadius: 40,
+            padding: '12px 28px',
+            background: 'rgba(26,5,5,0.55)',
+            boxShadow: '3px 3px 0 #1a0a00',
+            width: '100%',
+            maxWidth: 420,
           }}
         >
-          Festa de Aniversário
-        </p>
-
-        {/* Date box */}
-        <div className="date-box" style={{ animation: 'fadeUp 0.7s 0.36s ease both' }}>
-          <span
+          <p
             style={{
               fontFamily: 'var(--font-playfair), serif',
-              fontSize: 'clamp(1.2rem, 3.8vw, 1.6rem)',
+              fontSize: 'clamp(1rem, 3.2vw, 1.35rem)',
               fontWeight: 700,
-              color: '#f0e6d3',
-              letterSpacing: '1px',
+              color: '#C8940A',
+              letterSpacing: '0.06em',
+              textAlign: 'center',
             }}
           >
-            01/05 às 19h30
-          </span>
-        </div>
-
-        {/* Endereço */}
-        <address
-          style={{
-            textAlign: 'center',
-            color: 'rgba(240,230,211,0.85)',
-            fontFamily: 'var(--font-lora), serif',
-            fontSize: 'clamp(0.9rem, 2.4vw, 1.05rem)',
-            lineHeight: 1.8,
-            fontStyle: 'normal',
-            animation: 'fadeUp 0.7s 0.42s ease both',
-          }}
-        >
-          Quarta 204 lote 7<br />
-          Residencial Impérium<br />
-          Águas Claras
-        </address>
-
-        {/* Balões */}
-        <div style={{ animation: 'fadeUp 0.7s 0.48s ease both', width: '100%' }}>
-          <Balloons />
+            01 de Maio · Sexta-Feira · 19h30
+          </p>
+          <address
+            style={{
+              textAlign: 'center',
+              color: 'rgba(240,230,211,0.7)',
+              fontFamily: 'var(--font-lora), serif',
+              fontSize: 'clamp(0.78rem, 2vw, 0.9rem)',
+              lineHeight: 1.6,
+              fontStyle: 'normal',
+              letterSpacing: '0.03em',
+            }}
+          >
+            Quarta 204 lote 7 · Residencial Impérium · Águas Claras
+          </address>
         </div>
 
         {/* Divider fino */}
-        <div style={{ width: 48, height: 1, background: 'rgba(240,230,211,0.25)', margin: '0.1rem auto' }} />
+        <div style={{ width: 48, height: 1, background: 'rgba(240,230,211,0.2)', margin: '0.1rem auto', animation: 'fadeUp 0.7s 0.36s ease both' }} />
 
-        {/* Botões CTA */}
+        {/* Botões CTA — mesma linha */}
         <div
           style={{
-            display: 'flex', gap: '0.75rem', flexWrap: 'wrap',
-            justifyContent: 'center', animation: 'fadeUp 0.7s 0.54s ease both',
+            display: 'flex',
+            gap: '0.75rem',
+            justifyContent: 'center',
+            flexWrap: 'nowrap',
+            animation: 'fadeUp 0.7s 0.42s ease both',
+            width: '100%',
           }}
         >
-          <a className="cal-btn" href={calUrl} target="_blank" rel="noopener noreferrer">
+          <a className="cal-btn" href={calUrl} target="_blank" rel="noopener noreferrer"
+            style={{ flex: '0 1 auto', fontSize: 'clamp(0.75rem, 2vw, 0.92rem)', padding: '11px 18px', gap: '0.4rem' }}>
             <CalIcon />
             Salvar no Google Calendar
           </a>
-          <a className="cal-btn" href={mapsUrl} target="_blank" rel="noopener noreferrer">
+          <a className="cal-btn" href={mapsUrl} target="_blank" rel="noopener noreferrer"
+            style={{ flex: '0 1 auto', fontSize: 'clamp(0.75rem, 2vw, 0.92rem)', padding: '11px 18px', gap: '0.4rem' }}>
             <MapIcon />
             Ver endereço
           </a>
