@@ -16,6 +16,11 @@ const lora = Lora({
   display: 'swap',
 })
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
+
 export const metadata = {
   title: '20 Anos — Maria Clara',
   description: 'Você está convidado para os 20 anos da Maria Clara! 01/05 às 19h30 • Residencial Impérium, Águas Claras.',
